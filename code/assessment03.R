@@ -163,7 +163,7 @@ df_env <- janitor::clean_names(df_env)
 n_unique <- sapply(df_env, n_distinct)
 cnm <- which(n_unique > 1)
 
-df_env <- df_env %>% 
+df_env_sub <- df_env %>% 
   select(all_of(cnm))
 
 # Q8
@@ -185,7 +185,7 @@ df_n <- df_bci %>%
 # (`df_env_sub`) for each plot. Assign the resulting dataframe to `df_m`.
 
 df_m <- df_n %>% 
-  left_join(df_env,
+  left_join(df_env_sub,
             by = "plot")
 
 # Q10
