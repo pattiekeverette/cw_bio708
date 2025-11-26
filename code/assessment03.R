@@ -24,10 +24,12 @@ head(CO2)
 # CO2 dataframe is a base dataframe. Convert this to a class `tibble`
 # then assign to `df_co2`
 
+df_co2 <- as_tibble(CO2)
 
 # Q2
 # Convert column names to lowercase and reassign to `df_co2`
 
+df_co2 <- janitor::clean_names(df_co2)
 
 # Q3
 # Create scatter plots of CO₂ uptake versus ambient CO₂ concentration using `df_co2`.
@@ -36,6 +38,13 @@ head(CO2)
 # - Color the points by treatment.
 # - Create separate panels for each plant type (Quebec vs Mississippi) and combine the plots.
 
+df_co2 %>% 
+  ggplot(aes(x = conc,
+             y = uptake,
+             color = treatment)) +
+  geom_point() +
+  facet_wrap(facet =~ type) +
+  theme_bw()
 
 # Q4
 # The df_co2 dataset contains the following variables:
@@ -52,6 +61,11 @@ head(CO2)
 # 
 # Fit these models separately for each plant origin.
 
+mm <- lm(uptake ~ conc * treatment,
+         data = filter(df_co2, type == "Mississippi"))
+
+mq <- lm(uptake ~ conc * treatment,
+         data = filter(df_co2, type == "Quebec"))
 
 # Q5
 # Based on the models fitted in Q4 for Quebec and Mississippi plants,
@@ -63,6 +77,16 @@ head(CO2)
 # ENTER YOUR ANSWER HERE as COMMENT:
 # (no coding required for this question)
 
+# Uptake increased significantly with concentration in both plant types.
+# However, treatment effects varied by region:
+#   - Mississippi: both the main effect of treatment and the concentration × treatment interaction were significant.
+#   - Quebec: neither effect was significant.
+# Overall, higher CO2 assimilation at higher concentrations is expected,
+# but the temperature treatment influenced only Mississippi plants, particularly at high CO2 concentrations (interaction).
+# This pattern suggests physiological differences associated with plant origin.
+
+summary(mm)
+summary(mq)
 
 # BCI data ----------------------------------------------------------------
 
@@ -129,12 +153,18 @@ df_env <- BCI.env %>%
 # Q6
 # Convert column names of `df_env` to lowercase and reassign to `df_env`
 
+df_env <- janitor::clean_names(df_env)
 
 # Q7
 # In `df_env`, some environmental variables have no variation between plots
 # (i.e., the same value for all plots). Identify these columns and remove them
 # from the dataframe. Assign the resulting dataframe to `df_env_sub`.
 
+n_unique <- sapply(df_env, n_distinct)
+cnm <- which(n_unique > 1)
+
+df_env <- df_env %>% 
+  select(all_of(cnm))
 
 # Q8
 # Calculate summary statistics for each plot using `df_bci`.
@@ -144,11 +174,19 @@ df_env <- BCI.env %>%
 # - p: proportion of the most abundant species (n1 / n_sum)
 # Assign the resulting dataframe to `df_n`.
 
+df_n <- df_bci %>% 
+  group_by(plot) %>% 
+  summarize(n1 = max(count),
+            n_sum = sum(count),
+            p = n1 / n_sum)
 
 # Q9
 # Combine the summary data (`df_n`) with the environmental variables
 # (`df_env_sub`) for each plot. Assign the resulting dataframe to `df_m`.
 
+df_m <- df_n %>% 
+  left_join(df_env,
+            by = "plot")
 
 # Q10
 # Develop a statistical model to explain variation in the proportion of the dominant
@@ -158,3 +196,15 @@ df_env <- BCI.env %>%
 # rather than the goodness of fit, and report which variables are included in 
 # the best predictive model as a comment.
 
+# develop a full model
+fm <- glm(cbind(n1, n_sum - n1) ~ env_het + stream + habitat,
+          data = df_m,
+          family = "binomial")
+
+options(na.action = "na.fail")
+
+library(MuMIn)
+ms <- dredge(fm, rank = "AIC")
+subset(ms, delta < 2)
+
+# env_het & habitat are selected
