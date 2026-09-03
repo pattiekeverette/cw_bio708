@@ -64,7 +64,7 @@ df_mtcars <- as_tibble(mtcars)
 #
 # Display the column names of `df_mtcars` using `colnames()`.  
 # Do NOT assign the result to a new object.
-
+colnames(df_mtcars)
 
 # 9: Extract the row names of the `mtcars` dataset using `rownames()`.  
 # Assign the result to `v_make`.
@@ -72,20 +72,31 @@ df_mtcars <- as_tibble(mtcars)
   v_make <- rownames(mtcars)
 
 # 10: Add `v_make` as a new column to `df_mtcars` and name the column `"make"`.
+  
+df_mtcars <- mutate(df_mtcars, make = v_make)
 
 # 11: Filter `df_mtcars` to include only rows where:  
 # - `mpg` is less than 20 AND  
 # - `disp` is greater than 200  
 # Assign the result to `df_subset`.
 
+df_subset <- filter(df_mtcars, mpg < 20 & disp > 200)
+
 # 12: Count how many car makes meet the above conditions (Q11).
 # Apply `nrow()` to `df_subset`. Use ?nrow() for the usage of nrow() function.
 
+nrow(df_subset)
+#15
+
 # 13: Repeat Q11 and Q12 in a single pipeline (with %>%), and assign the result to `n_make`.
+
+n_make <- filter(df_mtcars, mpg < 20 & disp > 200) %>% 
+  nrow()
 
 # 14: Convert the `cyl` column from numeric to factor using `factor()`.  
 # Add it to `df_mtcars` as a new column named `f_cyl` using `mutate()` function.
 # Use ?factor() for the usage of factor() function.
+
 
 # 15: Draw a box plot showing car weight (`wt`) for each number of cylinders (`f_cyl`).
 
