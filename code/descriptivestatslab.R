@@ -53,17 +53,33 @@ z_rev_tibble %>%
 # Variation ---------------------------------------------------------------
 
 #7.3.2 Comparing Variation Measures
-Why do we have absolute (variance, SD, MAD, IQR) and relative measures (CV, MAD/Median) of variation? To understand this, suppose we have 100 measurements of fish weight in unit “gram.” (w in the following script)
+#Why do we have absolute (variance, SD, MAD, IQR) and relative measures (CV, MAD/Median) of variation? To understand this, suppose we have 100 measurements of fish weight in unit “gram.” (w in the following script)
 
-#w <- rnorm(100, mean = 10, sd = 1)
-#head(w) # show first 10 elements in w
-## [1]  8.734939  9.313147  9.554338 11.224082 10.359814 10.400771
+w <- rnorm(100, mean = 10, sd = 1)
+
+head(w) 
+
 #Using this data, perform the following exercise:
 
 #Convert the unit of w to “milligram” and create a new vector m.
 
+m <- 1000*w
+
 #Calculate SD and MAD for w and m.
+
+(sd_w <- sqrt(sum((w-mean(w))^2) / length(w)))
+(mad_w <- median(abs(w-median(w))))
+
+(sd_m <- sqrt(sum((m-mean(m))^2) / length(m)))
+(Mad_m <- median(abs(m-median(m))))
 
 #Calculate CV and MAD/Median for w and m.
 
+mean_w <- mean(w)
+sd_w <- sd(w)
+cv_w <- sd_w/mean_w
+
+mean_m <- mean(m)
+sd_m <- sd(m)
+cv_m <- sd_m/mean_m
 
